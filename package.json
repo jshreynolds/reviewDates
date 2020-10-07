@@ -1,0 +1,18 @@
+{
+  "name": "lattice",
+  "version": "1.0.0",
+  "description": "Employee Review Scheduling implmentation for Lattice code evaluation.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "jest": "^26.5.2",
+    "ts-jest": "^26.4.1",
+    "typescript": "^4.0.3"
+  }
+}
