@@ -1,4 +1,4 @@
-import {Employee, Rule, calculateUpcomingReviews} from './employee'
+import {Employee, Rule, calculateUpcomingReviews, adjustForWeekends} from './employee'
 
 test('single employee gets correct values', () => {
 
@@ -23,4 +23,29 @@ test('single employee gets correct values', () => {
 
     expect(receivedReviews.length).toBe(10)
 
+})
+
+test('valid review date', () => {
+    const tuesdayReview = new Date('2020-10-05')
+    const adjustedTuesday = adjustForWeekends(tuesdayReview)
+
+    expect(adjustedTuesday).toEqual(tuesdayReview)
+
+    const saturdayReviewDate = new Date('2020-10-10')
+    const expectedFriday = new Date('2020-10-09')
+
+    const adjustedReview = adjustForWeekends(saturdayReviewDate)
+    expect(adjustedReview).toEqual(expectedFriday)
+
+    const sundayTheFirstReview = new Date('2020-11-01')
+    const expectedMonday = new Date('2020-11-02')
+
+    const adjustedSundayReview = adjustForWeekends(sundayTheFirstReview)
+    expect(adjustedSundayReview).toEqual(expectedMonday)
+
+    const saturdayTheFirstReview = new Date('2021-05-01')
+    const expectedMonday2 = new Date('2021-05-03')
+
+    const adjustedSaturdayReview = adjustForWeekends(saturdayTheFirstReview)
+    expect(adjustedSaturdayReview).toEqual(expectedMonday2)
 })
