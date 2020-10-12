@@ -5,7 +5,7 @@ const SUNDAY_ADJUSTMENT = -2
 const FRIDAY_TO_MONDAY_ADJUSTMENT = 3
 
 export interface Rule {
-    firstReviewMonthsAfterStartDate: number,
+    firstReviewMonthsAfterStartDate: number
     repeatingMonthlyCadence: number
 }
 
@@ -15,7 +15,7 @@ export interface Employee {
     startDate: string
 }
 
-export interface Review {
+export interface ScheduledReview {
     employeeID: number
     date: string
 }
@@ -24,13 +24,23 @@ export function calculateUpcomingReviews(
     rule: Rule,
     employees: Employee[],
     timestamp: Date
-): Review[] {
+): ScheduledReview[] {
+    const idToReviewDates = employees.map((employee) => ({
+        employeeID: employee.id,
+        reviewDates: nextNReviews(10, reviewDates(rule, employee, timestamp)),
+    }))
 
-    const idsToDates = employees.map(employee => ({ employeeID: employee.id, reviewDates: nextNReviews(10, reviewDates(rule, employee, timestamp)) }))
-    const idsToReviews = idsToDates.flatMap(({ employeeID, reviewDates }) => reviewDates.map(date => ({ employeeID, date })))
-    idsToReviews.sort((a, b) => a.date.valueOf() - b.date.valueOf())
-    const ids = idsToReviews.slice(0, 10)
-    const result = ids.map(({ employeeID, date }) => ({ employeeID, date: formatDate(date) }))
+    const scheduledReviews = idToReviewDates.flatMap(
+        ({ employeeID, reviewDates }) =>
+            reviewDates.map((date) => ({ employeeID, date }))
+    )
+    scheduledReviews.sort((a, b) => a.date.valueOf() - b.date.valueOf())
+
+    const nextTenReviews = scheduledReviews.slice(0, 10)
+    const result = nextTenReviews.map(({ employeeID, date }) => ({
+        employeeID,
+        date: formatDate(date),
+    }))
     return result
 }
 
@@ -39,9 +49,11 @@ function formatDate(date: Date): string {
     return isoDate.slice(0, isoDate.indexOf('T'))
 }
 
-export function nextNReviews(numberOfReviews: number, reviewDates: Generator<Date>): Array<Date> {
-    let result = []
-
+export function nextNReviews(
+    numberOfReviews: number,
+    reviewDates: Generator<Date>
+): Array<Date> {
+    const result = []
     for (let index = 0; index < numberOfReviews; index++) {
         result.push(reviewDates.next().value)
     }
@@ -51,19 +63,17 @@ export function nextNReviews(numberOfReviews: number, reviewDates: Generator<Dat
 export function* reviewDates(
     rule: Rule,
     employee: Employee,
-    timestamp: Date): Generator<Date> {
-
+    timestamp: Date
+): Generator<Date> {
     const currentDate = timestamp
     const startDate = new Date(employee.startDate)
 
     let monthsForward = rule.firstReviewMonthsAfterStartDate
-
     if (monthsForward === 0) {
         monthsForward = rule.repeatingMonthlyCadence
     }
 
     let currentReview = getReview(startDate, monthsForward)
-
     while (currentReview < currentDate) {
         monthsForward = monthsForward + rule.repeatingMonthlyCadence
         currentReview = getReview(startDate, monthsForward)
@@ -74,30 +84,40 @@ export function* reviewDates(
         monthsForward = monthsForward + rule.repeatingMonthlyCadence
         currentReview = getReview(startDate, monthsForward)
     }
-
 }
 
 function getReview(startDate: Date, monthsForward: number) {
-    return adjustForWeekends(adjustMonth(startDate, monthsForward))
+    return adjustForWeekends(shiftDate(startDate, monthsForward))
 }
 
-export function adjustMonth(date: Date, monthAdjustment: number) {
+export function shiftDate(date: Date, monthAdjustment: number): Date {
     const utcYear = date.getUTCFullYear()
     const utcMonth = date.getUTCMonth() + monthAdjustment
+    const targetMonth = makeUTCDate(utcYear, utcMonth, 1)
 
-    const adjustedMonth = makeUTCDate(utcYear, utcMonth, 1)
-    const latestDayToUseForMonth = Math.min(date.getUTCDate(), daysInMonth(adjustedMonth))
+    const latestDayToUseForMonth = Math.min(
+        date.getUTCDate(),
+        daysInMonth(targetMonth)
+    )
 
     return makeUTCDate(utcYear, utcMonth, latestDayToUseForMonth)
 }
 
 export function daysInMonth(date: Date): number {
-    const newDate = makeUTCDate(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)
+    const newDate = makeUTCDate(
+        date.getUTCFullYear(),
+        date.getUTCMonth() + 1,
+        0
+    )
     return newDate.getUTCDate()
 }
 
-function adjustDay(date: Date, dayAdjustment: number) {
-    return makeUTCDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + dayAdjustment)
+function shiftDay(date: Date, dayAdjustment: number) {
+    return makeUTCDate(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate() + dayAdjustment
+    )
 }
 
 export function adjustForWeekends(reviewDate: Date): Date {
@@ -105,20 +125,18 @@ export function adjustForWeekends(reviewDate: Date): Date {
     const numericalDate = reviewDate.getUTCDate()
 
     let dayAdjustment = 0
-
     if (dayOfWeek == SATURDAY) {
         dayAdjustment = SATURDAY_ADJUSTMENT
     } else if (dayOfWeek == SUNDAY) {
         dayAdjustment = SUNDAY_ADJUSTMENT
     }
 
-    const monthHasChanged = (numericalDate + dayAdjustment) <= 0
-
+    const monthHasChanged = numericalDate + dayAdjustment <= 0
     if (monthHasChanged) {
         dayAdjustment = dayAdjustment + FRIDAY_TO_MONDAY_ADJUSTMENT
     }
 
-    return adjustDay(reviewDate, dayAdjustment)
+    return shiftDay(reviewDate, dayAdjustment)
 }
 
 function makeUTCDate(year: number, month: number, day: number): Date {

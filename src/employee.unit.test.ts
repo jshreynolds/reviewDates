@@ -1,14 +1,24 @@
-import { Employee, Rule, Review, calculateUpcomingReviews, adjustForWeekends, reviewDates, nextNReviews, daysInMonth } from './employee'
+import {
+    Employee,
+    Rule,
+    ScheduledReview,
+    calculateUpcomingReviews,
+    adjustForWeekends,
+    reviewDates,
+    nextNReviews,
+    daysInMonth,
+} from './employee'
 import { TestCase } from './testHelper'
 import testCases from './tests.json'
 
 test('single employee gets correct values', () => {
+    const everyMonth: Rule = {
+        firstReviewMonthsAfterStartDate: 2,
+        repeatingMonthlyCadence: 1,
+    }
+    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' }
 
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 2, repeatingMonthlyCadence: 1 };
-    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' };
-    const currentDate = new Date(2020, 0, 1)
-
-    const expectedResults: Review[] = [
+    const expectedResults: ScheduledReview[] = [
         { employeeID: 1, date: '2020-03-13' },
         { employeeID: 1, date: '2020-04-15' },
         { employeeID: 1, date: '2020-05-15' },
@@ -22,30 +32,30 @@ test('single employee gets correct values', () => {
     ]
 
     const simpleTest: TestCase = {
-        testName: "A simple Test",
+        testName: 'A simple Test',
         employees: [sally],
         rule: everyMonth,
         timestamp: '2020-01-01',
         expectedResults,
-
     }
 
     runTestCase(simpleTest)
-
 })
 
 describe('testing all of the provided test cases', () => {
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
         test(`test case: ${testCase.testName}`, () => {
             runTestCase(testCase)
         })
-    });
+    })
 })
 
-
 test('employee review generator for distant reviewDate', () => {
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 2, repeatingMonthlyCadence: 1 };
-    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' };
+    const everyMonth: Rule = {
+        firstReviewMonthsAfterStartDate: 2,
+        repeatingMonthlyCadence: 1,
+    }
+    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' }
     const reviewDate = new Date(2021, 0, 1, 0)
 
     const reviewGenerator = reviewDates(everyMonth, sally, reviewDate)
@@ -59,13 +69,14 @@ test('employee review generator for distant reviewDate', () => {
     const secondReview = reviewGenerator.next().value
 
     expect(secondReview).toEqual(expectedSecondReview)
-
-
 })
 
-test('employee review generator works when sta', () => {
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 2, repeatingMonthlyCadence: 1 };
-    const sally: Employee = { id: 1, name: 'Sally', startDate: '2021-01-15' };
+test('employee review generator works when start date is in the future', () => {
+    const everyMonth: Rule = {
+        firstReviewMonthsAfterStartDate: 2,
+        repeatingMonthlyCadence: 1,
+    }
+    const sally: Employee = { id: 1, name: 'Sally', startDate: '2021-01-15' }
     const reviewDate = new Date(2020, 0, 1, 0)
 
     const reviewGenerator = reviewDates(everyMonth, sally, reviewDate)
@@ -79,11 +90,9 @@ test('employee review generator works when sta', () => {
     const secondReview = reviewGenerator.next().value
 
     expect(secondReview).toEqual(expectedSecondReview)
-
-
 })
 
-test('valid review date', () => {
+test('weekend adjustments stay in the same month', () => {
     const tuesdayReview = new Date('2020-10-05')
     const adjustedTuesday = adjustForWeekends(tuesdayReview)
 
@@ -108,9 +117,12 @@ test('valid review date', () => {
     expect(adjustedSaturdayReview).toEqual(expectedMonday2)
 })
 
-test('generator flattener works ', () => {
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 2, repeatingMonthlyCadence: 1 };
-    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' };
+test('take next N values', () => {
+    const everyMonth: Rule = {
+        firstReviewMonthsAfterStartDate: 2,
+        repeatingMonthlyCadence: 1,
+    }
+    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' }
     const reviewDate = new Date(2020, 0, 1, 0)
 
     const reviewGenerator = reviewDates(everyMonth, sally, reviewDate)
@@ -121,12 +133,14 @@ test('generator flattener works ', () => {
     expect(next2dates.length).toBe(2)
     expect(next2dates[0]).toEqual(expectedFirstReview)
     expect(next2dates[1]).toEqual(expectedSecondReview)
+})
 
-});
-
-test('reviews with zero start date use monthly cadence as the "first review" value', () => {
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 0, repeatingMonthlyCadence: 1 };
-    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' };
+test('reviews with zero start date use monthly cadence as the "first review"', () => {
+    const everyMonth: Rule = {
+        firstReviewMonthsAfterStartDate: 0,
+        repeatingMonthlyCadence: 1,
+    }
+    const sally: Employee = { id: 1, name: 'Sally', startDate: '2020-01-15' }
     const reviewDate = new Date('2020-01-01')
 
     const reviewGenerator = reviewDates(everyMonth, sally, reviewDate)
@@ -134,13 +148,15 @@ test('reviews with zero start date use monthly cadence as the "first review" val
     const expectedFirstReview = new Date('2020-02-14')
     const firstReview = reviewGenerator.next().value
 
-   expect(firstReview).toEqual(expectedFirstReview)
-
+    expect(firstReview).toEqual(expectedFirstReview)
 })
 
 test('Ending month days should shift themselves to the last "possible" day in the current month', () => {
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 0, repeatingMonthlyCadence: 3 };
-    const bob: Employee = { id: 2, name: 'Bob', startDate: '2019-08-31' };
+    const everyMonth: Rule = {
+        firstReviewMonthsAfterStartDate: 0,
+        repeatingMonthlyCadence: 3,
+    }
+    const bob: Employee = { id: 2, name: 'Bob', startDate: '2019-08-31' }
     const reviewDate = new Date('2020-01-01')
 
     const reviewGenerator = reviewDates(everyMonth, bob, reviewDate)
@@ -148,32 +164,32 @@ test('Ending month days should shift themselves to the last "possible" day in th
     const expectedFirstReview = new Date('2020-02-28')
     const firstReview = reviewGenerator.next().value
 
-   expect(firstReview).toEqual(expectedFirstReview)
-
+    expect(firstReview).toEqual(expectedFirstReview)
 })
 
-test('days in month', () => {
+test('days in month calculation', () => {
     const january = new Date('2020-01-15')
     expect(daysInMonth(january)).toBe(31)
 
     const february = new Date('2020-02-01')
     expect(daysInMonth(february)).toBe(29)
-
 })
 
 function runTestCase(testCase: TestCase) {
-
     const expectedResults = testCase.expectedResults
-    
+
     const timestamp = new Date(testCase.timestamp)
-    const receivedResults = calculateUpcomingReviews(testCase.rule, testCase.employees, timestamp)
+    const receivedResults = calculateUpcomingReviews(
+        testCase.rule,
+        testCase.employees,
+        timestamp
+    )
 
     expect(receivedResults.length).toBe(expectedResults.length)
- 
+
     for (let i = 0; i < receivedResults.length; i++) {
-        const review = receivedResults[i];
+        const review = receivedResults[i]
         const expectedReview = expectedResults[i]
         expect(review).toEqual(expectedReview)
     }
-
 }
