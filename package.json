@@ -4,9 +4,9 @@
   "description": "Employee Review Scheduling implmentation for Lattice code evaluation.",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "lint": "eslint --ext .ts src",
-    "prettier": "prettier 'src/**/*.ts' --write"
+    "test": "npx jest",
+    "lint": "npx eslint --ext .ts src",
+    "prettier": "npx prettier 'src/**/*.ts' --write"
   },
   "author": "",
   "license": "ISC",

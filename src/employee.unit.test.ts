@@ -2,13 +2,12 @@ import {
     Employee,
     Rule,
     ScheduledReview,
-    calculateUpcomingReviews,
     adjustForWeekends,
     reviewDates,
     nextNReviews,
     daysInMonth,
 } from './employee'
-import { TestCase } from './testHelper'
+import { TestCase, runTestCase } from './testHelper'
 import testCases from './tests.json'
 
 test('single employee gets correct values', () => {
@@ -174,22 +173,3 @@ test('days in month calculation', () => {
     const february = new Date('2020-02-01')
     expect(daysInMonth(february)).toBe(29)
 })
-
-function runTestCase(testCase: TestCase) {
-    const expectedResults = testCase.expectedResults
-
-    const timestamp = new Date(testCase.timestamp)
-    const receivedResults = calculateUpcomingReviews(
-        testCase.rule,
-        testCase.employees,
-        timestamp
-    )
-
-    expect(receivedResults.length).toBe(expectedResults.length)
-
-    for (let i = 0; i < receivedResults.length; i++) {
-        const review = receivedResults[i]
-        const expectedReview = expectedResults[i]
-        expect(review).toEqual(expectedReview)
-    }
-}

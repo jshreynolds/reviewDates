@@ -3,6 +3,7 @@ const SUNDAY = 0
 const SATURDAY_ADJUSTMENT = -1
 const SUNDAY_ADJUSTMENT = -2
 const FRIDAY_TO_MONDAY_ADJUSTMENT = 3
+const REVIEW_DEPTH = 10
 
 export interface Rule {
     firstReviewMonthsAfterStartDate: number
@@ -27,7 +28,10 @@ export function calculateUpcomingReviews(
 ): ScheduledReview[] {
     const idToReviewDates = employees.map((employee) => ({
         employeeID: employee.id,
-        reviewDates: nextNReviews(10, reviewDates(rule, employee, timestamp)),
+        reviewDates: nextNReviews(
+            REVIEW_DEPTH,
+            reviewDates(rule, employee, timestamp)
+        ),
     }))
 
     const scheduledReviews = idToReviewDates.flatMap(
@@ -36,8 +40,8 @@ export function calculateUpcomingReviews(
     )
     scheduledReviews.sort((a, b) => a.date.valueOf() - b.date.valueOf())
 
-    const nextTenReviews = scheduledReviews.slice(0, 10)
-    const result = nextTenReviews.map(({ employeeID, date }) => ({
+    const nextReviews = scheduledReviews.slice(0, REVIEW_DEPTH)
+    const result = nextReviews.map(({ employeeID, date }) => ({
         employeeID,
         date: formatDate(date),
     }))
@@ -93,10 +97,11 @@ function getReview(startDate: Date, monthsForward: number) {
 export function shiftDate(date: Date, monthAdjustment: number): Date {
     const utcYear = date.getUTCFullYear()
     const utcMonth = date.getUTCMonth() + monthAdjustment
+    const scheduledDay = date.getUTCDate()
     const targetMonth = makeUTCDate(utcYear, utcMonth, 1)
 
     const latestDayToUseForMonth = Math.min(
-        date.getUTCDate(),
+        scheduledDay,
         daysInMonth(targetMonth)
     )
 
@@ -104,12 +109,12 @@ export function shiftDate(date: Date, monthAdjustment: number): Date {
 }
 
 export function daysInMonth(date: Date): number {
-    const newDate = makeUTCDate(
+    const lastDayOfTheMonth = makeUTCDate(
         date.getUTCFullYear(),
         date.getUTCMonth() + 1,
         0
     )
-    return newDate.getUTCDate()
+    return lastDayOfTheMonth.getUTCDate()
 }
 
 function shiftDay(date: Date, dayAdjustment: number) {
@@ -122,7 +127,7 @@ function shiftDay(date: Date, dayAdjustment: number) {
 
 export function adjustForWeekends(reviewDate: Date): Date {
     const dayOfWeek = reviewDate.getUTCDay()
-    const numericalDate = reviewDate.getUTCDate()
+    const day = reviewDate.getUTCDate()
 
     let dayAdjustment = 0
     if (dayOfWeek == SATURDAY) {
@@ -131,7 +136,7 @@ export function adjustForWeekends(reviewDate: Date): Date {
         dayAdjustment = SUNDAY_ADJUSTMENT
     }
 
-    const monthHasChanged = numericalDate + dayAdjustment <= 0
+    const monthHasChanged = day + dayAdjustment <= 0
     if (monthHasChanged) {
         dayAdjustment = dayAdjustment + FRIDAY_TO_MONDAY_ADJUSTMENT
     }
