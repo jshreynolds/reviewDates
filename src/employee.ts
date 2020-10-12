@@ -15,12 +15,85 @@ export interface Employee {
     startDate: string
 }
 
+export interface Review {
+    employeeID: number
+    date: string
+}
+
 export function calculateUpcomingReviews(
     rule: Rule,
-    employees: Array<Employee>,
+    employees: Employee[],
     timestamp: Date
-): Array<{ employeeId: number, date: string }> {
-    return []
+): Review[] {
+
+    const idsToDates = employees.map(employee => ({ employeeID: employee.id, reviewDates: nextNReviews(reviewDates(rule, employee, timestamp), 10) }))
+    const idsToReviews = idsToDates.flatMap(({ employeeID, reviewDates }) => (reviewDates.map(date => ({ employeeID, date }))))
+    idsToReviews.sort((a, b) => a.date.valueOf() - b.date.valueOf())
+    const ids = idsToReviews.slice(0, 10)
+    const result = ids.map(({ employeeID, date }) => ({ employeeID, date: formatDate(date) }))
+    return result
+}
+
+function formatDate(date: Date): string {
+    const isoDate = date.toISOString()
+    return isoDate.slice(0, isoDate.indexOf('T'))
+}
+
+export function nextNReviews(reviewDates: Generator<Date>, numberOfReviews: number): Array<Date> {
+
+    let result = []
+
+    for (let index = 0; index < numberOfReviews; index++) {
+        result.push(reviewDates.next().value)
+    }
+    return result
+}
+
+export function* reviewDates(
+    rule: Rule,
+    employee: Employee,
+    timestamp: Date): Generator<Date> {
+
+    const currentDate = timestamp
+    const startDate = new Date(employee.startDate)
+
+    let reviewMonthAdjustment = rule.firstReviewMonthsAfterStartDate
+
+    if (reviewMonthAdjustment === 0) {
+        reviewMonthAdjustment = rule.repeatingMonthlyCadence
+    }
+
+    let currentReview = getReview(startDate, reviewMonthAdjustment)
+
+    while (currentReview < currentDate) {
+        reviewMonthAdjustment = reviewMonthAdjustment + rule.repeatingMonthlyCadence
+        currentReview = getReview(startDate, reviewMonthAdjustment)
+    }
+
+    while (true) {
+        yield currentReview
+        reviewMonthAdjustment = reviewMonthAdjustment + rule.repeatingMonthlyCadence
+        currentReview = getReview(startDate, reviewMonthAdjustment)
+    }
+
+}
+
+function getReview(startDate: Date, monthsForward: number) {
+    return adjustForWeekends(adjustMonth(startDate, monthsForward))
+}
+
+export function adjustMonth(date: Date, monthAdjustment: number) {
+    const maxDaysInDate = Math.min(date.getUTCDate(), daysInMonth(date))
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + monthAdjustment, maxDaysInDate))
+}
+
+export function daysInMonth(date: Date): number {
+    const newDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0))
+    return newDate.getUTCDate()
+}
+
+function adjustDay(date: Date, dayAdjustment: number) {
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + dayAdjustment))
 }
 
 export function adjustForWeekends(reviewDate: Date): Date {
@@ -35,11 +108,11 @@ export function adjustForWeekends(reviewDate: Date): Date {
         dayAdjustment = SUNDAY_ADJUSTMENT
     }
 
-    const monthChanged = (numericalDate + dayAdjustment) <= 0
+    const monthHasChanged = (numericalDate + dayAdjustment) <= 0
 
-    if (monthChanged) {
+    if (monthHasChanged) {
         dayAdjustment = dayAdjustment + FRIDAY_TO_MONDAY_ADJUSTMENT
     }
 
-    return new Date(Date.UTC(reviewDate.getUTCFullYear(), reviewDate.getUTCMonth(), numericalDate + dayAdjustment))
+    return adjustDay(reviewDate, dayAdjustment)
 }

@@ -1,0 +1,222 @@
+[
+  {
+    "testName": "One employee",
+    "rule": {
+      "firstReviewMonthsAfterStartDate": 2,
+      "repeatingMonthlyCadence": 1
+    },
+    "employees": [
+      { "id": 1, "name": "Sally", "startDate": "2020-01-15" }
+    ],
+    "timestamp": "2020-01-01",
+    "expectedResults": [
+      { "employeeID": 1, "date": "2020-03-13" },
+      { "employeeID": 1, "date": "2020-04-15" },
+      { "employeeID": 1, "date": "2020-05-15" },
+      { "employeeID": 1, "date": "2020-06-15" },
+      { "employeeID": 1, "date": "2020-07-15" },
+      { "employeeID": 1, "date": "2020-08-14" },
+      { "employeeID": 1, "date": "2020-09-15" },
+      { "employeeID": 1, "date": "2020-10-15" },
+      { "employeeID": 1, "date": "2020-11-13" },
+      { "employeeID": 1, "date": "2020-12-15" }
+    ]
+  },
+  {
+    "testName": "Two employees",
+    "rule": {
+      "firstReviewMonthsAfterStartDate": 0,
+      "repeatingMonthlyCadence": 3
+    },
+    "employees": [
+      { "id": 1, "name": "Sally", "startDate": "2020-01-15" },
+      { "id": 2, "name": "Bob", "startDate": "2019-08-31" }
+    ],
+    "timestamp": "2020-01-01",
+    "expectedResults": [
+      { "employeeID": 2, "date": "2020-02-28" },
+      { "employeeID": 1, "date": "2020-04-15" },
+      { "employeeID": 2, "date": "2020-05-29" },
+      { "employeeID": 1, "date": "2020-07-15" },
+      { "employeeID": 2, "date": "2020-08-31" },
+      { "employeeID": 1, "date": "2020-10-15" },
+      { "employeeID": 2, "date": "2020-11-30" },
+      { "employeeID": 1, "date": "2021-01-15" },
+      { "employeeID": 2, "date": "2021-02-26" },
+      { "employeeID": 1, "date": "2021-04-15" }
+    ]
+  },
+  {
+    "testName": "Future start date",
+    "rule": {
+      "firstReviewMonthsAfterStartDate": 0,
+      "repeatingMonthlyCadence": 1
+    },
+    "employees": [
+      { "id": 1, "name": "Sally", "startDate": "2020-01-15" },
+      { "id": 3, "name": "Bill", "startDate": "2020-04-16" }
+    ],
+    "timestamp": "2020-01-01",
+    "expectedResults": [
+      { "employeeID": 1, "date": "2020-02-14" },
+      { "employeeID": 1, "date": "2020-03-13" },
+      { "employeeID": 1, "date": "2020-04-15" },
+      { "employeeID": 1, "date": "2020-05-15" },
+      { "employeeID": 3, "date": "2020-05-15" },
+      { "employeeID": 1, "date": "2020-06-15" },
+      { "employeeID": 3, "date": "2020-06-16" },
+      { "employeeID": 1, "date": "2020-07-15" },
+      { "employeeID": 3, "date": "2020-07-16" },
+      { "employeeID": 1, "date": "2020-08-14" }
+    ]
+  },
+  {
+    "testName": "Five employees",
+    "rule": {
+      "firstReviewMonthsAfterStartDate": 3,
+      "repeatingMonthlyCadence": 6
+    },
+    "employees": [
+      { "id": 1, "name": "Sally", "startDate": "2020-01-15" },
+      { "id": 2, "name": "Bob", "startDate": "2019-08-31" },
+      { "id": 3, "name": "Bill", "startDate": "2020-04-16" },
+      { "id": 4, "name": "Sarah", "startDate": "2018-02-10" },
+      { "id": 5, "name": "Jack", "startDate": "2016-10-01" }
+    ],
+    "timestamp": "2020-01-01",
+    "expectedResults": [
+      { "employeeID": 5, "date": "2020-01-01" },
+      { "employeeID": 1, "date": "2020-04-15" },
+      { "employeeID": 4, "date": "2020-05-08" },
+      { "employeeID": 2, "date": "2020-05-29" },
+      { "employeeID": 5, "date": "2020-07-01" },
+      { "employeeID": 3, "date": "2020-07-16" },
+      { "employeeID": 1, "date": "2020-10-15" },
+      { "employeeID": 4, "date": "2020-11-10" },
+      { "employeeID": 2, "date": "2020-11-30" },
+      { "employeeID": 5, "date": "2021-01-01" }
+    ]
+  },
+  {
+    "testName": "One hundrend employees",
+    "rule": {
+      "firstReviewMonthsAfterStartDate": 11,
+      "repeatingMonthlyCadence": 12
+    },
+    "employees": [
+      { "id": 1, "name": "Sally", "startDate": "2020-01-15" },
+      { "id": 2, "name": "Bob", "startDate": "2019-08-31" },
+      { "id": 3, "name": "Bill", "startDate": "2020-04-16" },
+      { "id": 4, "name": "Sarah", "startDate": "2018-02-10" },
+      { "id": 5, "name": "Jack", "startDate": "2016-10-01" },
+      { "id": 6, "name": "Keyon", "startDate": "2018-12-17" },
+      { "id": 7, "name": "Zoey", "startDate": "2016-11-27" },
+      { "id": 8, "name": "Mackenzie", "startDate": "2016-07-13" },
+      { "id": 9, "name": "Muriel", "startDate": "2018-06-16" },
+      { "id": 10, "name": "Elisabeth", "startDate": "2019-04-29" },
+      { "id": 11, "name": "Rey", "startDate": "2020-05-13" },
+      { "id": 12, "name": "Laila", "startDate": "2020-05-04" },
+      { "id": 13, "name": "Mathias", "startDate": "2020-08-28" },
+      { "id": 14, "name": "Cletus", "startDate": "2015-10-31" },
+      { "id": 15, "name": "Hiram", "startDate": "2018-06-25" },
+      { "id": 16, "name": "Ceasar", "startDate": "2018-10-29" },
+      { "id": 17, "name": "Bethel", "startDate": "2016-02-27" },
+      { "id": 18, "name": "Scotty", "startDate": "2019-12-07" },
+      { "id": 19, "name": "Muriel", "startDate": "2016-01-03" },
+      { "id": 20, "name": "Peter", "startDate": "2016-04-27" },
+      { "id": 21, "name": "Anna", "startDate": "2017-05-19" },
+      { "id": 22, "name": "Jayson", "startDate": "2015-04-09" },
+      { "id": 23, "name": "Brooks", "startDate": "2015-10-09" },
+      { "id": 24, "name": "Ken", "startDate": "2019-11-07" },
+      { "id": 25, "name": "Nathaniel", "startDate": "2016-10-03" },
+      { "id": 26, "name": "Felton", "startDate": "2017-03-11" },
+      { "id": 27, "name": "Monica", "startDate": "2020-02-24" },
+      { "id": 28, "name": "Maria", "startDate": "2018-10-13" },
+      { "id": 29, "name": "Emmitt", "startDate": "2020-04-23" },
+      { "id": 30, "name": "Kiera", "startDate": "2019-03-14" },
+      { "id": 31, "name": "Stella", "startDate": "2019-12-23" },
+      { "id": 32, "name": "Arielle", "startDate": "2018-09-25" },
+      { "id": 33, "name": "Santa", "startDate": "2016-03-20" },
+      { "id": 34, "name": "Morton", "startDate": "2016-01-22" },
+      { "id": 35, "name": "Esta", "startDate": "2016-09-03" },
+      { "id": 36, "name": "Loren", "startDate": "2016-01-03" },
+      { "id": 37, "name": "Francesco", "startDate": "2015-08-11" },
+      { "id": 38, "name": "Antwon", "startDate": "2015-09-28" },
+      { "id": 39, "name": "Mabelle", "startDate": "2018-01-14" },
+      { "id": 40, "name": "Patience", "startDate": "2020-02-15" },
+      { "id": 41, "name": "Merl", "startDate": "2016-11-25" },
+      { "id": 42, "name": "Willard", "startDate": "2015-11-26" },
+      { "id": 43, "name": "Luisa", "startDate": "2017-01-03" },
+      { "id": 44, "name": "Luis", "startDate": "2017-08-15" },
+      { "id": 45, "name": "David", "startDate": "2017-12-16" },
+      { "id": 46, "name": "Lorenzo", "startDate": "2015-02-16" },
+      { "id": 47, "name": "Eden", "startDate": "2020-12-03" },
+      { "id": 48, "name": "Dereck", "startDate": "2017-04-19" },
+      { "id": 49, "name": "Elias", "startDate": "2017-12-19" },
+      { "id": 50, "name": "Hilario", "startDate": "2015-01-15" },
+      { "id": 51, "name": "Karl", "startDate": "2018-03-19" },
+      { "id": 52, "name": "Hester", "startDate": "2017-01-06" },
+      { "id": 53, "name": "Tianna", "startDate": "2018-01-21" },
+      { "id": 54, "name": "Berenice", "startDate": "2015-04-13" },
+      { "id": 55, "name": "Jairo", "startDate": "2018-06-24" },
+      { "id": 56, "name": "Sofia", "startDate": "2019-03-31" },
+      { "id": 57, "name": "Angelita", "startDate": "2018-12-30" },
+      { "id": 58, "name": "Jeanie", "startDate": "2018-09-25" },
+      { "id": 59, "name": "Carlie", "startDate": "2017-10-03" },
+      { "id": 60, "name": "Adelle", "startDate": "2020-08-20" },
+      { "id": 61, "name": "Stuart", "startDate": "2020-01-12" },
+      { "id": 62, "name": "Warren", "startDate": "2015-02-02" },
+      { "id": 63, "name": "Clementina", "startDate": "2020-03-23" },
+      { "id": 64, "name": "Leta", "startDate": "2018-06-07" },
+      { "id": 65, "name": "Marjorie", "startDate": "2019-10-29" },
+      { "id": 66, "name": "Ebony", "startDate": "2019-06-15" },
+      { "id": 67, "name": "Neva", "startDate": "2017-03-03" },
+      { "id": 68, "name": "Amira", "startDate": "2016-08-01" },
+      { "id": 69, "name": "Thad", "startDate": "2016-03-09" },
+      { "id": 70, "name": "Stanford", "startDate": "2016-12-07" },
+      { "id": 71, "name": "Travis", "startDate": "2019-12-07" },
+      { "id": 72, "name": "Casimer", "startDate": "2015-11-15" },
+      { "id": 73, "name": "Dolores", "startDate": "2015-08-10" },
+      { "id": 74, "name": "Joshuah", "startDate": "2018-12-27" },
+      { "id": 75, "name": "Josefina", "startDate": "2018-05-21" },
+      { "id": 76, "name": "Soledad", "startDate": "2020-08-03" },
+      { "id": 77, "name": "Jeramy", "startDate": "2016-07-09" },
+      { "id": 78, "name": "Curt", "startDate": "2015-06-15" },
+      { "id": 79, "name": "Viva", "startDate": "2015-08-27" },
+      { "id": 80, "name": "Wilford", "startDate": "2017-10-24" },
+      { "id": 81, "name": "Braxton", "startDate": "2017-05-17" },
+      { "id": 82, "name": "Jonas", "startDate": "2015-09-28" },
+      { "id": 83, "name": "Yasmeen", "startDate": "2017-05-17" },
+      { "id": 84, "name": "Tess", "startDate": "2019-07-07" },
+      { "id": 85, "name": "Jammie", "startDate": "2017-12-27" },
+      { "id": 86, "name": "Rashawn", "startDate": "2020-01-24" },
+      { "id": 87, "name": "Emmanuel", "startDate": "2016-12-05" },
+      { "id": 88, "name": "Verna", "startDate": "2015-12-10" },
+      { "id": 89, "name": "Abdiel", "startDate": "2018-06-24" },
+      { "id": 90, "name": "Thelma", "startDate": "2020-09-23" },
+      { "id": 91, "name": "Keyshawn", "startDate": "2015-04-22" },
+      { "id": 92, "name": "Fredrick", "startDate": "2015-05-02" },
+      { "id": 93, "name": "Quentin", "startDate": "2015-08-25" },
+      { "id": 94, "name": "Louvenia", "startDate": "2019-09-26" },
+      { "id": 95, "name": "Janet", "startDate": "2018-06-06" },
+      { "id": 96, "name": "Selmer", "startDate": "2016-12-27" },
+      { "id": 97, "name": "Rogelio", "startDate": "2018-05-24" },
+      { "id": 98, "name": "Mckenna", "startDate": "2020-11-23" },
+      { "id": 99, "name": "Jaren", "startDate": "2018-11-08" },
+      { "id": 100, "name": "Bianka", "startDate": "2018-01-02" }
+    ],
+    "timestamp": "2020-02-01",
+    "expectedResults": [
+      { "employeeID": 67, "date": "2020-02-03" },
+      { "employeeID": 69, "date": "2020-02-07" },
+      { "employeeID": 26, "date": "2020-02-11" },
+      { "employeeID": 30, "date": "2020-02-14" },
+      { "employeeID": 51, "date": "2020-02-19" },
+      { "employeeID": 33, "date": "2020-02-20" },
+      { "employeeID": 56, "date": "2020-02-28" },
+      { "employeeID": 22, "date": "2020-03-09" },
+      { "employeeID": 54, "date": "2020-03-13" },
+      { "employeeID": 48, "date": "2020-03-19" }
+    ]
+  }
+]
