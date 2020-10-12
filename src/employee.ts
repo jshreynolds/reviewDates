@@ -26,8 +26,8 @@ export function calculateUpcomingReviews(
     timestamp: Date
 ): Review[] {
 
-    const idsToDates = employees.map(employee => ({ employeeID: employee.id, reviewDates: nextNReviews(reviewDates(rule, employee, timestamp), 10) }))
-    const idsToReviews = idsToDates.flatMap(({ employeeID, reviewDates }) => (reviewDates.map(date => ({ employeeID, date }))))
+    const idsToDates = employees.map(employee => ({ employeeID: employee.id, reviewDates: nextNReviews(10, reviewDates(rule, employee, timestamp)) }))
+    const idsToReviews = idsToDates.flatMap(({ employeeID, reviewDates }) => reviewDates.map(date => ({ employeeID, date })))
     idsToReviews.sort((a, b) => a.date.valueOf() - b.date.valueOf())
     const ids = idsToReviews.slice(0, 10)
     const result = ids.map(({ employeeID, date }) => ({ employeeID, date: formatDate(date) }))
@@ -39,8 +39,7 @@ function formatDate(date: Date): string {
     return isoDate.slice(0, isoDate.indexOf('T'))
 }
 
-export function nextNReviews(reviewDates: Generator<Date>, numberOfReviews: number): Array<Date> {
-
+export function nextNReviews(numberOfReviews: number, reviewDates: Generator<Date>): Array<Date> {
     let result = []
 
     for (let index = 0; index < numberOfReviews; index++) {
@@ -57,23 +56,23 @@ export function* reviewDates(
     const currentDate = timestamp
     const startDate = new Date(employee.startDate)
 
-    let reviewMonthAdjustment = rule.firstReviewMonthsAfterStartDate
+    let monthsForward = rule.firstReviewMonthsAfterStartDate
 
-    if (reviewMonthAdjustment === 0) {
-        reviewMonthAdjustment = rule.repeatingMonthlyCadence
+    if (monthsForward === 0) {
+        monthsForward = rule.repeatingMonthlyCadence
     }
 
-    let currentReview = getReview(startDate, reviewMonthAdjustment)
+    let currentReview = getReview(startDate, monthsForward)
 
     while (currentReview < currentDate) {
-        reviewMonthAdjustment = reviewMonthAdjustment + rule.repeatingMonthlyCadence
-        currentReview = getReview(startDate, reviewMonthAdjustment)
+        monthsForward = monthsForward + rule.repeatingMonthlyCadence
+        currentReview = getReview(startDate, monthsForward)
     }
 
     while (true) {
         yield currentReview
-        reviewMonthAdjustment = reviewMonthAdjustment + rule.repeatingMonthlyCadence
-        currentReview = getReview(startDate, reviewMonthAdjustment)
+        monthsForward = monthsForward + rule.repeatingMonthlyCadence
+        currentReview = getReview(startDate, monthsForward)
     }
 
 }
@@ -83,17 +82,22 @@ function getReview(startDate: Date, monthsForward: number) {
 }
 
 export function adjustMonth(date: Date, monthAdjustment: number) {
-    const maxDaysInDate = Math.min(date.getUTCDate(), daysInMonth(date))
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + monthAdjustment, maxDaysInDate))
+    const utcYear = date.getUTCFullYear()
+    const utcMonth = date.getUTCMonth() + monthAdjustment
+
+    const adjustedMonth = makeUTCDate(utcYear, utcMonth, 1)
+    const latestDayToUseForMonth = Math.min(date.getUTCDate(), daysInMonth(adjustedMonth))
+
+    return makeUTCDate(utcYear, utcMonth, latestDayToUseForMonth)
 }
 
 export function daysInMonth(date: Date): number {
-    const newDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0))
+    const newDate = makeUTCDate(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)
     return newDate.getUTCDate()
 }
 
 function adjustDay(date: Date, dayAdjustment: number) {
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + dayAdjustment))
+    return makeUTCDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + dayAdjustment)
 }
 
 export function adjustForWeekends(reviewDate: Date): Date {
@@ -115,4 +119,8 @@ export function adjustForWeekends(reviewDate: Date): Date {
     }
 
     return adjustDay(reviewDate, dayAdjustment)
+}
+
+function makeUTCDate(year: number, month: number, day: number): Date {
+    return new Date(Date.UTC(year, month, day))
 }

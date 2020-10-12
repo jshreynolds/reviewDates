@@ -34,7 +34,7 @@ test('single employee gets correct values', () => {
 
 })
 
-xdescribe('testing all of the provided test cases', () => {
+describe('testing all of the provided test cases', () => {
     testCases.forEach(testCase => {
         test(`test case: ${testCase.testName}`, () => {
             runTestCase(testCase)
@@ -117,7 +117,7 @@ test('generator flattener works ', () => {
     const expectedFirstReview = new Date('2020-03-13')
     const expectedSecondReview = new Date('2020-04-15')
 
-    const next2dates = nextNReviews(reviewGenerator, 2)
+    const next2dates = nextNReviews(2, reviewGenerator)
     expect(next2dates.length).toBe(2)
     expect(next2dates[0]).toEqual(expectedFirstReview)
     expect(next2dates[1]).toEqual(expectedSecondReview)
@@ -139,11 +139,11 @@ test('reviews with zero start date use monthly cadence as the "first review" val
 })
 
 test('Ending month days should shift themselves to the last "possible" day in the current month', () => {
-    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 0, repeatingMonthlyCadence: 1 };
-    const sally: Employee = { id: 2, name: 'Bob', startDate: '2019-08-31' };
+    const everyMonth: Rule = { firstReviewMonthsAfterStartDate: 0, repeatingMonthlyCadence: 3 };
+    const bob: Employee = { id: 2, name: 'Bob', startDate: '2019-08-31' };
     const reviewDate = new Date('2020-01-01')
 
-    const reviewGenerator = reviewDates(everyMonth, sally, reviewDate)
+    const reviewGenerator = reviewDates(everyMonth, bob, reviewDate)
 
     const expectedFirstReview = new Date('2020-02-28')
     const firstReview = reviewGenerator.next().value
@@ -157,8 +157,8 @@ test('days in month', () => {
     expect(daysInMonth(january)).toBe(31)
 
     const february = new Date('2020-02-01')
-    expect(daysInMonth(february)).toBe(28)
-    
+    expect(daysInMonth(february)).toBe(29)
+
 })
 
 function runTestCase(testCase: TestCase) {
