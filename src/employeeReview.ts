@@ -48,22 +48,6 @@ export function calculateUpcomingReviews(
     return result
 }
 
-function formatDate(date: Date): string {
-    const isoDate = date.toISOString()
-    return isoDate.slice(0, isoDate.indexOf('T'))
-}
-
-export function nextNReviews(
-    numberOfReviews: number,
-    reviewDates: Generator<Date>
-): Array<Date> {
-    const result = []
-    for (let index = 0; index < numberOfReviews; index++) {
-        result.push(reviewDates.next().value)
-    }
-    return result
-}
-
 export function* reviewDates(
     rule: Rule,
     employee: Employee,
@@ -94,35 +78,15 @@ function getReview(startDate: Date, monthsForward: number) {
     return adjustForWeekends(shiftDate(startDate, monthsForward))
 }
 
-export function shiftDate(date: Date, monthAdjustment: number): Date {
-    const utcYear = date.getUTCFullYear()
-    const utcMonth = date.getUTCMonth() + monthAdjustment
-    const scheduledDay = date.getUTCDate()
-    const targetMonth = makeUTCDate(utcYear, utcMonth, 1)
-
-    const latestDayToUseForMonth = Math.min(
-        scheduledDay,
-        daysInMonth(targetMonth)
-    )
-
-    return makeUTCDate(utcYear, utcMonth, latestDayToUseForMonth)
-}
-
-export function daysInMonth(date: Date): number {
-    const lastDayOfTheMonth = makeUTCDate(
-        date.getUTCFullYear(),
-        date.getUTCMonth() + 1,
-        0
-    )
-    return lastDayOfTheMonth.getUTCDate()
-}
-
-function shiftDay(date: Date, dayAdjustment: number) {
-    return makeUTCDate(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate() + dayAdjustment
-    )
+export function nextNReviews(
+    numberOfReviews: number,
+    reviewDates: Generator<Date>
+): Array<Date> {
+    const result = []
+    for (let index = 0; index < numberOfReviews; index++) {
+        result.push(reviewDates.next().value)
+    }
+    return result
 }
 
 export function adjustForWeekends(reviewDate: Date): Date {
@@ -144,6 +108,42 @@ export function adjustForWeekends(reviewDate: Date): Date {
     return shiftDay(reviewDate, dayAdjustment)
 }
 
+export function shiftDate(date: Date, monthAdjustment: number): Date {
+    const utcYear = date.getUTCFullYear()
+    const utcMonth = date.getUTCMonth() + monthAdjustment
+    const scheduledDay = date.getUTCDate()
+    const targetMonth = makeUTCDate(utcYear, utcMonth, 1)
+
+    const latestDayToUseForMonth = Math.min(
+        scheduledDay,
+        daysInMonth(targetMonth)
+    )
+
+    return makeUTCDate(utcYear, utcMonth, latestDayToUseForMonth)
+}
+
+function shiftDay(date: Date, dayAdjustment: number) {
+    return makeUTCDate(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate() + dayAdjustment
+    )
+}
+
+export function daysInMonth(date: Date): number {
+    const lastDayOfTheMonth = makeUTCDate(
+        date.getUTCFullYear(),
+        date.getUTCMonth() + 1,
+        0
+    )
+    return lastDayOfTheMonth.getUTCDate()
+}
+
 function makeUTCDate(year: number, month: number, day: number): Date {
     return new Date(Date.UTC(year, month, day))
+}
+
+function formatDate(date: Date): string {
+    const isoDate = date.toISOString()
+    return isoDate.slice(0, isoDate.indexOf('T'))
 }

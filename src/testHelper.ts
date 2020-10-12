@@ -3,7 +3,7 @@ import {
     Employee,
     ScheduledReview,
     calculateUpcomingReviews,
-} from './employee'
+} from './employeeReview'
 
 export interface TestCase {
     testName: string

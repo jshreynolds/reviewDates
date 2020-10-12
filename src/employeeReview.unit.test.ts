@@ -6,7 +6,7 @@ import {
     reviewDates,
     nextNReviews,
     daysInMonth,
-} from './employee'
+} from './employeeReview'
 import { TestCase, runTestCase } from './testHelper'
 import testCases from './tests.json'
 
